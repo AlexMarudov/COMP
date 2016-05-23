@@ -64,26 +64,51 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+var child = child_process.fork(__dirname + '/child.js');
+// var child = child_process.fork(__dirname + '/child-win.js');
+var taskId = 0;
+var tasks = {};
+var maxQueue = 10; // menentukan seberapa banyak queue yang bisa dilayani oleh satu server
+
+function addTask(data, callback) {
+    // taskId++;
+    // if (taskId > 10) taskId = 1;
+    taskId++;
+    if (taskId > maxQueue) taskId = 1;
+    
+    child.send({id: taskId, usr:User.name, script:data.script, inputs:data.inputs});
+
+    tasks[taskId] = callback;
+}
+
+child.on('message', function(message) {
+    // Look up the callback bound to this id and invoke it with the result
+    // console.log(message);
+    tasks[message.id](message);
+});
+
+app.get('/', function(req, res) {
+    res.render("login.html");
+});
 
 // Регаем пользователя test test
 User.register("guest", "guest", function(){});
 
-app.get('/login', function(req, res) {
-    res.render("1login.html");
+app.get('/login', 
+	function(req, res) {
+	res.render("login.html");
 })
 
-app.post('/login',
-  passport.authenticate('local'),
-  function(req, res) {
-    res.redirect('/compile/');
-});
-
-app.get('/register', function(req, res) {
-    if (req.isAuthenticated()) {
+app.post('/login', passport.authenticate('local', { successRedirect: '/compile',
+                                                    failureRedirect: '/login',
+                                                    failureFlash: false }))
+app.get('/register', 
+	function(req, res) {
+	if (req.isAuthenticated()) {
         res.send("You already logined!" + req.user.username);
         return;
     }
-    res.render("2register.html");
+    res.render("register.html");
 })
 
 app.post('/register', function(req, res) {
@@ -102,49 +127,38 @@ app.post('/register', function(req, res) {
 });
 //
 
-var child = child_process.fork(__dirname + '/child.js');
-// var child = child_process.fork(__dirname + '/child-win.js');
-var taskId = 0;
-var tasks = {};
-var maxQueue = 10; // menentukan seberapa banyak queue yang bisa dilayani oleh satu server
-
-function addTask(data, callback) {
-    // taskId++;
-    // if (taskId > 10) taskId = 1;
-    taskId++;
-    if (taskId > maxQueue) taskId = 1;
-
-    child.send({id: taskId, script:data.script, inputs:data.inputs});
-
-    tasks[taskId] = callback;
-}
-
-child.on('message', function(message) {
-    // Look up the callback bound to this id and invoke it with the result
-    // console.log(message);
-    tasks[message.id](message);
+app.get('/logout', function(req, res) {
+  req.logout();
+  res.redirect('/login');
 });
 
-app.get('/', function(req, res) {
-    res.render("auth.ejs");
+app.get('/compile', 
+	//passport.authenticate('local', {
+	//failureRedirect: '/login',
+	//successRedirect: '/compile',
+	//failureFlash: false}),
+	function(req, res) {
+		var user = null;
+		if (req.isAuthenticated()) {
+			user = req.user.username;
+    		}
+    res.render('index.ejs', { user: user });
 });
 
-app.get('/compile', function(req, res) {
-    res.render("index.ejs");
-});
-
-app.post('/compile', function(req, res) {
-    res.header('Access-Control-Allow-Origin', '*');
-    var password = req.body.password;
-    var script = req.body.script;
-    var inputs = req.body.inputs;
+app.post('/compile', 
+	//passport.authenticate('local', {
+	//failureRedirect: '/login',
+	//successRedirect: '/compile',
+	//failureFlash: false}),
+	function(req, res) {
+	res.header('Access-Control-Allow-Origin', '*');
+	var password = req.body.password;
+	var script = req.body.script;
+	var inputs = req.body.inputs;
    addTask({script: script, inputs:inputs}, function(result) {
         res.json(result);
     });
 });
-
-var server = http.createServer(app);
-
 // Filemanager
 var cloudcmd    = require('cloudcmd'),
     io          = require('socket.io');
@@ -153,14 +167,25 @@ socket = io.listen(server, {
     path: '/filemanager' + '/socket.io'
 });
 
-app.use(cloudcmd({
+var server = http.createServer(app);
+
+
+app.use('/filemanager', cloudcmd({
     socket: socket,     /* used by Config, Edit (optional) and Console (required)   */
     config: {           /* config data (optional)                                   */
 	root:	path.join(__dirname, 'users'),  /* root folder*/      
 	prefix:	'/filemanager', /* base URL or function which returns base URL (optional)   */
-    }
+	auth              : false,
+	username          : "ALegalov",           /* имя пользователя для авторизации                                */
+	password          : "88005553535",           /* хеш пароля в sha-1 для авторизации                              */   
+	}
+	
 }));
 
+app.use(function( req, res, next) {
+	res.status(404).render("404.html");
+	next();
+});
 
 server.listen(app.get('port'), function(){
   console.log('node compiler v0.2 active on port ' + app.get('port'));

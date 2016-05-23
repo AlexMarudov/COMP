@@ -1,21 +1,21 @@
 @font-face {
   font-family: 'segoeblack';
-  src: url('../fonts/SegoeWP-Black.ttf') format('truetype');
+  src: url('../../fonts/SegoeWP-Black.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: 'segoelight';
-  src: url('../fonts/SegoeWP-Semilight.ttf') format('truetype');
+  src: url('../../fonts/SegoeWP-Semilight.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-  background: #059fff;
+  background: url(../../images//ch2.png) top right no-repeat, url(../../images//ch1.png) top left no-repeat, #F7F7F7 url(../../images/bg1.png);background-attachment:fixed;
   margin: 0;
-  font-family: 'segoelight';
-  color: #fff;
+  font-family: 'segoeblack';
+  color: #363636;
 }
 
 h1, h2, h3, h4 {
@@ -25,7 +25,7 @@ h1, h2, h3, h4 {
 }
 a {
   text-decoration: none;
-  color: #fff;
+  color: #000;
 }
 h1 {
   font-size: 3em;
@@ -39,27 +39,54 @@ img {
 }
 
 .article {
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
   padding: 20px 0;
   display: block;
 }
 
-
-.logosmall {
-  background: url(../images/logosmall.png) no-repeat;
-  width: 150px;
-  height: 33px;
-  display: inline-block;
+#menu {
+  background: #363636;
+  width: 100%;
+  position: relative;
+  display: block;
+  text-align: right;
+}
+ul.menu {
+  background: transparent;
+  padding: 0;
+  list-style: none;
   margin: 0;
-  margin-top: 15px;
-  float: left;
+  display: inline-block;
+}
+ul.menu > li {
+  display: inline-block;
+  padding: 20px 0;
+  margin: 0;
+}
+ul.menu > li > a:hover, ul.menu > li > a.active {
+  background: #000;
+}
+ul.menu > li > a {
+  padding: 20px 15px;
+  font-family: 'segoeblack';
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #fff;
+}
+#menu.stuck {
+  position:fixed;
+  top:0;
+  z-index: 999;
+  box-shadow:0 2px 4px rgba(0, 0, 0, .3);
 }
 
 .btn {
-  padding: 20px;
+  padding: 20px 15px;
   font-family: 'segoeblack';
-  background: #2e4d64;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: #363636;
   display: inline-block;
   border: 2px solid #fff;
   cursor: pointer;
@@ -78,8 +105,8 @@ img {
   color: #2e4d64;
 }
 textarea {
-  background: #222225;
-  color: #fff;
+  background: #fff;
+  color: #000;
   width: 100%;
   border: none;
 }
@@ -103,8 +130,8 @@ input {
 }
 
 .loading {
-  background: url(../images/loader.gif) no-repeat center center;
-  height: 60px;
+  background: url(../../images/loader.gif) no-repeat center center;
+  height: 64px;
   width: 100%;
 }
 input[type="password"] {

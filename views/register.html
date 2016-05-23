@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"> 
+	<head>
+        	<meta charset="UTF-8" />
+        	<title>Вход</title>
+		<link rel="stylesheet" type="text/css" href="styles/auth/demo.css" />
+		<link rel="stylesheet" type="text/css" href="styles/auth/style.css" />
+		<link rel="stylesheet" type="text/css" href="styles/auth/animate-custom.css" />
+	</head>
+    	<body>
+		<div class="container">
+        		<header>
+                		<h1><span></span></h1>
+			</header>
+            <section>				
+                <div id="container_demo" >
+                <div id="wrapper">	
+			<div id="register" class="animate form">
+			<form  action="/register" method="post"> 
+                                <h1> Регистрация </h1> 
+                                <p> 
+                                    <label for="username" data-icon="u">Ваш логин</label>
+                                    <input name="username" type="text" placeholder="Например AIvanov-ki1210" />
+				</p>
+                                <p> 
+                                    <label for="email" class="youmail" data-icon="e" > Ваш e-mail</label>
+                                    <input name="email" type="email" placeholder="rambler@rambler.ru"/> 
+				</p>
+                                <p> 
+                                    <label for="password" class="youpasswd" data-icon="p">Ваш пароль </label>
+                                    <input name="password" type="password" placeholder="123456"/>
+				</p>
+                                <p> 
+                                    <label for="password_confirm" class="youpasswd" data-icon="p">Подтвердите ваш пароль </label>
+                                    <input name="password_confirm" type="password" placeholder="123456"/>
+				</p>
+                                <p class="signin button"> 
+				    <input type="submit" value="Регистрация"/> 
+				</p>
+                                <p class="change_link">  
+					Уже зарегистрированы ?
+				<a href="login" class="to_register"> Войдите на сайт </a>
+				</p>
+			</form>
+			</div>
+			</div>
+		</div>
+		</section>
+		</div>
+	</body>
+</html>
+

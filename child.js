@@ -7,7 +7,7 @@ var fileName;
 
 process.on('message', function(message) {
     // Process data
-    fileName = "test" + message.id;
+    fileName = message.name + message.id;
     targetSource = __dirname+"/users/"+fileName+".cpp";
     targetExe = "users/exe/"+fileName;
     targetInput = __dirname+"/users/input/" + fileName + ".txt";
