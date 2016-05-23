@@ -7,10 +7,21 @@ var fileName;
 
 process.on('message', function(message) {
     // Process data
-    fileName = message.name + message.id;
-    targetSource = __dirname+"/users/"+fileName+".cpp";
-    targetExe = "users/exe/"+fileName;
-    targetInput = __dirname+"/users/input/" + fileName + ".txt";
+    fileName = message.user + message.id;
+
+    pathToSource = __dirname + "/users/" + message.user + "/";
+    if (!fs.existsSync(pathToSource)){
+       fs.mkdirSync(pathToSource);
+    }
+
+    targetSource = pathToSource + fileName + ".cpp";
+    targetExe = "users/exe/" + fileName;
+    targetInput = pathToSource + "input/" + fileName + ".txt";
+       
+     if (!fs.existsSync(pathToSource + "input/")){
+       fs.mkdirSync(pathToSource + "input/");
+    }
+
 
     fs.writeFile(targetSource, message.script, function(err) {
         fs.writeFile(targetInput, message.inputs, function(err) {

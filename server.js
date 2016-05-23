@@ -75,8 +75,13 @@ function addTask(data, callback) {
     // if (taskId > 10) taskId = 1;
     taskId++;
     if (taskId > maxQueue) taskId = 1;
-    
-    child.send({id: taskId, usr:User.name, script:data.script, inputs:data.inputs});
+
+    child.send({
+        id: taskId,
+        user: data.username,
+        script: data.script,
+        inputs: data.inputs,
+    });
 
     tasks[taskId] = callback;
 }
@@ -94,24 +99,32 @@ app.get('/', function(req, res) {
 // Регаем пользователя test test
 User.register("guest", "guest", function(){});
 
-app.get('/login', 
+app.get('/login',
 	function(req, res) {
+	if (req.isAuthenticated()) {
+            res.redirect('/compile');
+            return;
+    }
 	res.render("login.html");
 })
 
 app.post('/login', passport.authenticate('local', { successRedirect: '/compile',
                                                     failureRedirect: '/login',
                                                     failureFlash: false }))
-app.get('/register', 
+app.get('/register',
 	function(req, res) {
 	if (req.isAuthenticated()) {
-        res.send("You already logined!" + req.user.username);
-        return;
+            res.redirect('/compile');
+            return;
     }
     res.render("register.html");
 })
 
 app.post('/register', function(req, res) {
+    if (req.isAuthenticated()) {
+            res.redirect('/compile');
+            return;
+        }
     var user = req.body.username;
     var account = req.body.password;
     User.register(user, account, function(error, user){
@@ -132,30 +145,27 @@ app.get('/logout', function(req, res) {
   res.redirect('/login');
 });
 
-app.get('/compile', 
-	//passport.authenticate('local', {
-	//failureRedirect: '/login',
-	//successRedirect: '/compile',
-	//failureFlash: false}),
+app.get('/compile',
 	function(req, res) {
-		var user = null;
-		if (req.isAuthenticated()) {
-			user = req.user.username;
-    		}
-    res.render('index.ejs', { user: user });
+        if (!req.isAuthenticated()) {
+            res.redirect('/login');
+            return;
+        }
+
+    res.render('index.ejs', { user: req.user.username });
 });
 
-app.post('/compile', 
-	//passport.authenticate('local', {
-	//failureRedirect: '/login',
-	//successRedirect: '/compile',
-	//failureFlash: false}),
+app.post('/compile',
 	function(req, res) {
+        if (!req.isAuthenticated()) {
+            res.redirect('/login');
+            return;
+        }
+
 	res.header('Access-Control-Allow-Origin', '*');
-	var password = req.body.password;
 	var script = req.body.script;
 	var inputs = req.body.inputs;
-   addTask({script: script, inputs:inputs}, function(result) {
+   addTask({script: script, inputs:inputs, username: req.user.username}, function(result) {
         res.json(result);
     });
 });
@@ -173,13 +183,13 @@ var server = http.createServer(app);
 app.use('/filemanager', cloudcmd({
     socket: socket,     /* used by Config, Edit (optional) and Console (required)   */
     config: {           /* config data (optional)                                   */
-	root:	path.join(__dirname, 'users'),  /* root folder*/      
+	root:	path.join(__dirname, 'users'),  /* root folder*/
 	prefix:	'/filemanager', /* base URL or function which returns base URL (optional)   */
-	auth              : false,
+	auth              : true,
 	username          : "ALegalov",           /* имя пользователя для авторизации                                */
-	password          : "88005553535",           /* хеш пароля в sha-1 для авторизации                              */   
+	password          : "88005553535",           /* хеш пароля в sha-1 для авторизации                              */
 	}
-	
+
 }));
 
 app.use(function( req, res, next) {
