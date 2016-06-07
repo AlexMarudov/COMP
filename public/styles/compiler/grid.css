@@ -107,7 +107,8 @@ body {
 /* Layout Columns */
 
 .col-11-12 {
-    width: 91.66%
+    float:left;
+    width: 100%
 }
 
 .col-10-12 {

@@ -27,8 +27,13 @@ var mydb = new Sequelize('database', 'username', 'password', {
 });
 
 // Модель пользователя
-var User = passportLocalSequelize.defineUser(mydb)
-
+var User = passportLocalSequelize.defineUser(mydb, {
+    admin: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: function() { return false },
+      primaryKey: false,
+   }
+});
 // Создаем таблицу
 User.sync();
 //
@@ -97,20 +102,48 @@ app.get('/', function(req, res) {
 });
 
 // Регаем пользователя test test
-User.register("guest", "guest", function(){});
+User.register("ALegalov", "12345", function(err, user) {
+  if (err) return;
+  user.set('admin', true);
+  user.save();
+});
 
 app.get('/login',
-	function(req, res) {
-	if (req.isAuthenticated()) {
+  function(req, res) {
+  if (req.isAuthenticated()) {
+            if (req.user.admin) {
+                res.redirect('/admin');
+                return;
+            }
+
             res.redirect('/compile');
             return;
     }
-	res.render("login.html");
+  res.render("login.html");
 })
 
-app.post('/login', passport.authenticate('local', { successRedirect: '/compile',
-                                                    failureRedirect: '/login',
-                                                    failureFlash: false }))
+
+app.post('/login',  function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) return next(err);
+    if (!user) {
+      res.redirect('/login');
+      return;
+    }
+
+    req.logIn(user, function(logErr) {
+      if (logErr) return next(err);
+      
+      if (user.admin) { 
+        res.redirect('/admin');
+   	return;
+      };
+
+      res.redirect('/compile');
+    });
+  })(req,res,next);
+})
+
 app.get('/register',
 	function(req, res) {
 	if (req.isAuthenticated()) {
@@ -145,15 +178,40 @@ app.get('/logout', function(req, res) {
   res.redirect('/login');
 });
 
-app.get('/compile',
+
+// Админка
+
+var task = "";
+var timer;
+
+app.get('/admin',
 	function(req, res) {
         if (!req.isAuthenticated()) {
             res.redirect('/login');
             return;
         }
 
-    res.render('index.ejs', { user: req.user.username });
+    res.render('admin.html', { user: req.user.username, task: task });
 });
+
+app.post('/admin', function(req, res) {
+  task = req.body.script;
+  timer = req.body.timer;
+  res.redirect('/admin');
+});
+
+
+app.get('/compile',
+	function(req, res) {
+        if (!req.isAuthenticated()) {
+            res.redirect('/login');
+            return;
+        }
+	timer--;
+    res.render('index.ejs', { user: req.user.username, task: task, timer: timer });
+
+});
+
 
 app.post('/compile',
 	function(req, res) {
@@ -162,7 +220,7 @@ app.post('/compile',
             return;
         }
 
-	res.header('Access-Control-Allow-Origin', '*');
+	//res.header('Access-Control-Allow-Origin', '*');
 	var script = req.body.script;
 	var inputs = req.body.inputs;
    addTask({script: script, inputs:inputs, username: req.user.username}, function(result) {
@@ -180,14 +238,14 @@ socket = io.listen(server, {
 var server = http.createServer(app);
 
 
-app.use('/filemanager', cloudcmd({
+app.use('/filemanager/', cloudcmd({
     socket: socket,     /* used by Config, Edit (optional) and Console (required)   */
     config: {           /* config data (optional)                                   */
 	root:	path.join(__dirname, 'users'),  /* root folder*/
 	prefix:	'/filemanager', /* base URL or function which returns base URL (optional)   */
 	auth              : true,
 	username          : "ALegalov",           /* имя пользователя для авторизации                                */
-	password          : "88005553535",           /* хеш пароля в sha-1 для авторизации                              */
+	password          : "8",           /* хеш пароля в sha-1 для авторизации                              */
 	}
 
 }));
@@ -198,5 +256,5 @@ app.use(function( req, res, next) {
 });
 
 server.listen(app.get('port'), function(){
-  console.log('node compiler v0.2 active on port ' + app.get('port'));
+  console.log('compiler active on port ' + app.get('port'));
 });

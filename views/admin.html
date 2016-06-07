@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Compiler</title>
+	<link rel="stylesheet" href="/styles/compiler/grid.css">
+	<link rel="stylesheet" href="/styles/compiler/style.css">
+	<script src="/scripts/jquery.js"></script>
+</head>
+<body>
+	<div id="menu">
+		<div class="container">
+			</div>
+			<ul class="menu">
+    
+    <% if (user) { %>
+        <li><a><%= user %></a><li>
+    <% } %>
+		<li><a href="/compile">Компилятор </a></li>
+		<li><a href="/filemanager">Файловый менджер </a></li>
+		<li><a href="/logout">Выход </a></li>
+   </ul>
+		</div>
+	<div class="article">
+		<div class="grid">
+			<form method="post" id="myCode" action="/admin">
+			<div class="col-11-12">
+					<textarea name="script" id="textarea" cols="30" rows="25"><%= task %></textarea>
+					
+
+				<h3>Время выделенное на задание</h3>	
+					<textarea name="timer" id="timer" cols="1" rows="1"></textarea>
+						<button class="btn" type="submit">Опубликовать</button>
+			</div>
+			</form>
+		</div>
+	</div>
+	</body>
+</html>

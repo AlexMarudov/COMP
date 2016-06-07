@@ -12,7 +12,9 @@
 		<div class="container">
 			</div>
 			<ul class="menu">
-    
+    <% if (timer) { %>
+        <li><a><%= timer %></a><li>
+    <% } %>
     <% if (user) { %>
         <li><a><%= user %></a><li>
     <% } %>
@@ -36,6 +38,7 @@ int main() {
 					<button class="btn" type="submit">Скомпилировать</button>
 				
 			</div>
+
 			<div class="col-1-3">
 				<div class="loading" style="display:none"></div>
 				<h3>Входные данные</h3>
@@ -43,7 +46,12 @@ int main() {
 				<h3>Вывод программы</h3>
 				<textarea name="result" id="result" cols="30" rows="8" disabled="disabled"></textarea>
 				Время выполнения : <span id="time"></span>
+				
 			</div>
+						<div class="col-11-12">
+			<h3>Задание</h3>
+				<textarea name="task" id="task" cols="30" rows="12" disabled="disabled" readonly="true"><%= task %></textarea>
+				</div>
 			</form>
 		</div>
 	</div>
